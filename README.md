@@ -41,7 +41,7 @@ Aplicación de notas móvil desarrollada con .NET MAUI 8.0
 - INotifyPropertyChanged en lugar de LiveData (equivalente MAUI)
 - ObservableCollection para actualización reactiva de la lista
 
-## Screenshots
+
 
 
 ## APK
