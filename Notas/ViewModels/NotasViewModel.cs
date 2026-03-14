@@ -76,5 +76,11 @@ namespace Notas.ViewModels
                 NotaSeleccionada = null;
             }
         }
+        public void SeleccionarNota(Nota nota)
+        {
+            NotaSeleccionada = nota;
+            Titulo = nota.Titulo;
+            Contenido = nota.Contenido;
+        }
     }
 }
