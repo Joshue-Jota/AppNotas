@@ -42,7 +42,7 @@ Aplicación de notas móvil desarrollada con .NET MAUI 8.0
 - ObservableCollection para actualización reactiva de la lista
 
 ## Screenshots
-[agregar imágenes aquí]
+
 
 ## APK
 Ver carpeta `release/`
