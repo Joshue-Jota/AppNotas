@@ -10,9 +10,7 @@ public partial class MainPage : ContentPage
         InitializeComponent();
 
         string dbPath = Path.Combine(FileSystem.AppDataDirectory, "notas.db3");
-
         var database = new DatabaseNotas(dbPath);
-
         BindingContext = new NotasViewModel(database);
     }
 }

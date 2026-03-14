@@ -13,18 +13,50 @@
                 Text="{Binding Contenido}" />
 
         <Button Text="Guardar Nota"
-                Command="{Binding GuardarCommand}" />
+                BackgroundColor="Green"
+                TextColor="White"
+                Command="{Binding GuardarCommand}"
+                IsVisible="{Binding ModoGuardar}" />
+
+        <Button Text="Actualizar Nota"
+                BackgroundColor="Orange"
+                TextColor="White"
+                Command="{Binding ActualizarCommand}"
+                IsVisible="{Binding ModoEdicion}" />
 
         <CollectionView ItemsSource="{Binding ListaNotas}">
             <CollectionView.ItemTemplate>
                 <DataTemplate>
-                    <Frame BorderColor="Gray">
-                        <StackLayout>
-                            <Label Text="{Binding Titulo}"
-                                   FontAttributes="Bold"/>
+                    <Frame BorderColor="Gray" Padding="10" Margin="0,5">
 
-                            <Label Text="{Binding Contenido}"/>
+                        <StackLayout>
+
+                            <Label Text="{Binding Titulo}"
+                                   FontAttributes="Bold"
+                                   FontSize="16"/>
+
+                            <Label Text="{Binding Contenido}"
+                                   FontSize="13"
+                                   TextColor="Gray"/>
+
+                            <HorizontalStackLayout Spacing="10">
+
+                                <Button Text="Editar"
+                                        BackgroundColor="Blue"
+                                        TextColor="White"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EditarCommand}"
+                                        CommandParameter="{Binding .}" />
+
+                                <Button Text="Eliminar"
+                                        BackgroundColor="Red"
+                                        TextColor="White"
+                                        Command="{Binding Source={RelativeSource AncestorType={x:Type ContentPage}}, Path=BindingContext.EliminarCommand}"
+                                        CommandParameter="{Binding .}" />
+
+                            </HorizontalStackLayout>
+
                         </StackLayout>
+
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
