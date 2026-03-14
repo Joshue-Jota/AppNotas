@@ -10,6 +10,7 @@ namespace Notas.ViewModels
     public class NotasViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
+        
 
         void OnPropertyChanged([CallerMemberName] string name = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
@@ -59,6 +60,8 @@ namespace Notas.ViewModels
         public ICommand EliminarCommand { get; }
         public ICommand EditarCommand { get; }
         public ICommand ActualizarCommand { get; }
+        public ICommand CancelarCommand { get; }
+        
 
         DatabaseNotas database;
 
@@ -73,6 +76,7 @@ namespace Notas.ViewModels
             EliminarCommand = new Command<Nota>(async (nota) => await EliminarNota(nota));
             EditarCommand = new Command<Nota>(SeleccionarNota);
             ActualizarCommand = new Command(async () => await ActualizarNota());
+            CancelarCommand = new Command(CancelarEdicion);
 
             CargarNotas();
         }
@@ -113,18 +117,11 @@ namespace Notas.ViewModels
         {
             if (NotaSeleccionada == null) return;
 
+            // Como Nota implementa INPC, esto actualiza la UI automáticamente
             NotaSeleccionada.Titulo = Titulo;
             NotaSeleccionada.Contenido = Contenido;
 
             await database.UpdateNotaAsync(NotaSeleccionada);
-
-            // Refresca el item visualmente en la lista
-            var index = ListaNotas.IndexOf(NotaSeleccionada);
-            if (index >= 0)
-            {
-                ListaNotas.RemoveAt(index);
-                ListaNotas.Insert(index, NotaSeleccionada);
-            }
 
             Titulo = "";
             Contenido = "";
@@ -138,6 +135,13 @@ namespace Notas.ViewModels
             Titulo = nota.Titulo;
             Contenido = nota.Contenido;
             ModoEdicion = true;
+        }
+        void CancelarEdicion()
+        {
+            Titulo = "";
+            Contenido = "";
+            NotaSeleccionada = null;
+            ModoEdicion = false;
         }
     }
 }
