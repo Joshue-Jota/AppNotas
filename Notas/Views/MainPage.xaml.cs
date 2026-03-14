@@ -13,4 +13,11 @@ public partial class MainPage : ContentPage
         var database = new DatabaseNotas(dbPath);
         BindingContext = new NotasViewModel(database);
     }
+    // Recarga la lista cada vez que vuelves a esta pantalla
+    protected override void OnAppearing()
+    {
+        base.OnAppearing();
+        if (BindingContext is NotasViewModel vm)
+            vm.CargarNotas();
+    }
 }

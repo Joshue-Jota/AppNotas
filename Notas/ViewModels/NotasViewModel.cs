@@ -10,138 +10,96 @@ namespace Notas.ViewModels
     public class NotasViewModel : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-        
-
         void OnPropertyChanged([CallerMemberName] string name = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
-        // ── Propiedades con notificación ──────────────────────────────
+        public ObservableCollection<Nota> ListaNotas { get; set; } = new();
 
-        private string _titulo;
-        public string Titulo
+        private string _busqueda;
+        public string Busqueda
         {
-            get => _titulo;
-            set { _titulo = value; OnPropertyChanged(); }
-        }
-
-        private string _contenido;
-        public string Contenido
-        {
-            get => _contenido;
-            set { _contenido = value; OnPropertyChanged(); }
-        }
-
-        private Nota _notaSeleccionada;
-        public Nota NotaSeleccionada
-        {
-            get => _notaSeleccionada;
-            set { _notaSeleccionada = value; OnPropertyChanged(); }
-        }
-
-        private bool _modoEdicion;
-        public bool ModoEdicion
-        {
-            get => _modoEdicion;
+            get => _busqueda;
             set
             {
-                _modoEdicion = value;
+                _busqueda = value;
                 OnPropertyChanged();
-                OnPropertyChanged(nameof(ModoGuardar));
+                FiltrarNotas();
             }
         }
 
-        public bool ModoGuardar => !ModoEdicion;
-
-        // ── Lista y comandos ──────────────────────────────────────────
-
-        public ObservableCollection<Nota> ListaNotas { get; set; }
-
-        public ICommand GuardarCommand { get; }
         public ICommand EliminarCommand { get; }
+        public ICommand PinCommand { get; }
+        public ICommand NuevaNotaCommand { get; }
         public ICommand EditarCommand { get; }
-        public ICommand ActualizarCommand { get; }
-        public ICommand CancelarCommand { get; }
-        
 
-        DatabaseNotas database;
-
-        // ── Constructor ───────────────────────────────────────────────
+        readonly DatabaseNotas database;
+        List<Nota> _todasLasNotas = new();
 
         public NotasViewModel(DatabaseNotas db)
         {
             database = db;
-            ListaNotas = new ObservableCollection<Nota>();
 
-            GuardarCommand = new Command(async () => await GuardarNota());
-            EliminarCommand = new Command<Nota>(async (nota) => await EliminarNota(nota));
-            EditarCommand = new Command<Nota>(SeleccionarNota);
-            ActualizarCommand = new Command(async () => await ActualizarNota());
-            CancelarCommand = new Command(CancelarEdicion);
+            EliminarCommand = new Command<Nota>(async (nota) => await ConfirmarEliminar(nota));
+            PinCommand = new Command<Nota>(async (nota) => await TogglePin(nota));
+            NuevaNotaCommand = new Command(async () => await NuevaNota());
+            EditarCommand = new Command<Nota>(async (nota) => await AbrirEdicion(nota));
 
             CargarNotas();
         }
 
-        // ── Métodos ───────────────────────────────────────────────────
-
-        async void CargarNotas()
+        public async void CargarNotas()
         {
-            var notas = await database.GetNotasAsync();
-            foreach (var nota in notas)
-                ListaNotas.Add(nota);
+            _todasLasNotas = await database.GetNotasAsync();
+            ListaNotas.Clear();
+            foreach (var n in _todasLasNotas)
+                ListaNotas.Add(n);
         }
 
-        async Task GuardarNota()
+        void FiltrarNotas()
         {
-            if (string.IsNullOrWhiteSpace(Titulo)) return;
+            var filtradas = string.IsNullOrWhiteSpace(Busqueda)
+                ? _todasLasNotas
+                : _todasLasNotas.Where(n =>
+                    n.Titulo.Contains(Busqueda, StringComparison.OrdinalIgnoreCase) ||
+                    (n.Contenido?.Contains(Busqueda, StringComparison.OrdinalIgnoreCase) ?? false))
+                  .ToList();
 
-            var nuevaNota = new Nota
+            ListaNotas.Clear();
+            foreach (var n in filtradas)
+                ListaNotas.Add(n);
+        }
+
+        async Task ConfirmarEliminar(Nota nota)
+        {
+            bool confirmar = await Shell.Current.DisplayAlert(
+                "Eliminar nota",
+                $"¿Deseas eliminar \"{nota.Titulo}\"?",
+                "Eliminar", "Cancelar");
+
+            if (confirmar)
             {
-                Titulo = Titulo,
-                Contenido = Contenido
-            };
-
-            await database.SaveNotaAsync(nuevaNota);
-            ListaNotas.Add(nuevaNota);
-
-            Titulo = "";
-            Contenido = "";
+                await database.DeleteNotaAsync(nota);
+                ListaNotas.Remove(nota);
+                _todasLasNotas.Remove(nota);
+            }
         }
 
-        async Task EliminarNota(Nota nota)
+        async Task TogglePin(Nota nota)
         {
-            await database.DeleteNotaAsync(nota);
-            ListaNotas.Remove(nota);
+            nota.IsPinned = !nota.IsPinned;
+            nota.UpdatedAt = DateTime.Now;
+            await database.UpdateNotaAsync(nota);
+            CargarNotas();
         }
 
-        async Task ActualizarNota()
+        async Task NuevaNota()
         {
-            if (NotaSeleccionada == null) return;
-
-            // Como Nota implementa INPC, esto actualiza la UI automáticamente
-            NotaSeleccionada.Titulo = Titulo;
-            NotaSeleccionada.Contenido = Contenido;
-
-            await database.UpdateNotaAsync(NotaSeleccionada);
-
-            Titulo = "";
-            Contenido = "";
-            NotaSeleccionada = null;
-            ModoEdicion = false;
+            await Shell.Current.GoToAsync("detalle");
         }
 
-        void SeleccionarNota(Nota nota)
+        async Task AbrirEdicion(Nota nota)
         {
-            NotaSeleccionada = nota;
-            Titulo = nota.Titulo;
-            Contenido = nota.Contenido;
-            ModoEdicion = true;
-        }
-        void CancelarEdicion()
-        {
-            Titulo = "";
-            Contenido = "";
-            NotaSeleccionada = null;
-            ModoEdicion = false;
+            await Shell.Current.GoToAsync($"detalle?id={nota.Id}");
         }
     }
 }

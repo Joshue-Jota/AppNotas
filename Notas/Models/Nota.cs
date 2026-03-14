@@ -12,7 +12,6 @@ namespace Notas.Models
     public class Nota : INotifyPropertyChanged
     {
         public event PropertyChangedEventHandler PropertyChanged;
-
         void OnPropertyChanged([CallerMemberName] string name = "") =>
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(name));
 
@@ -32,5 +31,28 @@ namespace Notas.Models
             get => _contenido;
             set { _contenido = value; OnPropertyChanged(); }
         }
+
+        private bool _isPinned;
+        public bool IsPinned
+        {
+            get => _isPinned;
+            set { _isPinned = value; OnPropertyChanged(); }
+        }
+
+        public DateTime CreatedAt { get; set; }
+
+        private DateTime _updatedAt;
+        public DateTime UpdatedAt
+        {
+            get => _updatedAt;
+            set { _updatedAt = value; OnPropertyChanged(); }
+        }
+
+        [Ignore]
+        public string FechaFormateada =>
+            UpdatedAt.ToString("dd MMM yyyy, HH:mm");
+
+        [Ignore]
+        public string PinIcon => IsPinned ? "📌" : "";
     }
 }

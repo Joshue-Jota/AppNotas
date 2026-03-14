@@ -18,9 +18,16 @@ namespace Notas.Database
             database.CreateTableAsync<Nota>().Wait();
         }
 
+        // Ordenado: pinned primero, luego más reciente
         public Task<List<Nota>> GetNotasAsync()
         {
-            return database.Table<Nota>().ToListAsync();
+            return database.QueryAsync<Nota>(
+                "SELECT * FROM Nota ORDER BY IsPinned DESC, UpdatedAt DESC");
+        }
+
+        public Task<Nota> GetNotaByIdAsync(int id)
+        {
+            return database.FindAsync<Nota>(id);
         }
 
         public Task<int> SaveNotaAsync(Nota nota)
@@ -39,4 +46,3 @@ namespace Notas.Database
         }
     }
 }
-

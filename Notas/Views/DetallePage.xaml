@@ -1,0 +1,130 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="Notas.Views.DetallePage"
+             Title="DetallePage"
+             BackgroundColor="#00335C">
+    <Shell.TitleView>
+        <Grid ColumnDefinitions="*, Auto" Padding="0,0,10,0">
+            <Label Grid.Column="0"
+                   Text="{Binding TituloPagina}"
+                   FontSize="18"
+                   FontAttributes="Bold"
+                   TextColor="#FFFFFF"
+                   VerticalOptions="Center"/>
+            <Button Grid.Column="1"
+                    Text="{Binding PinTexto}"
+                    BackgroundColor="Transparent"
+                    TextColor="#F59E0B"
+                    FontSize="22"
+                    Padding="0"
+                    VerticalOptions="Center"
+                    Command="{Binding TogglePinCommand}"/>
+        </Grid>
+    </Shell.TitleView>
+
+    <Grid RowDefinitions="Auto, *, Auto"
+          BackgroundColor="#1A1A2E">
+
+        <!-- Separador top -->
+        <BoxView Grid.Row="0"
+                 HeightRequest="1"
+                 BackgroundColor="#A78BFA"/>
+
+        <!-- Área de edición -->
+        <ScrollView Grid.Row="1">
+            <StackLayout Spacing="0" Padding="20,16">
+
+                <!-- Título -->
+                <Entry Placeholder="Título"
+                       Text="{Binding Titulo}"
+                       FontSize="26"
+                       FontAttributes="Bold"
+                       TextColor="#F0ABFC"
+                       PlaceholderColor="#6B7280"
+                       BackgroundColor="Transparent"
+                       ReturnType="Next"
+                       Margin="0,0,0,8"/>
+
+                <!-- Fecha y pin -->
+                <StackLayout Orientation="Horizontal" Spacing="8" Margin="0,0,0,16">
+                    <Label Text="{Binding FechaHoy}"
+                           FontSize="13"
+                           TextColor="#6B7280"
+                           VerticalOptions="Center"/>
+                    <Label Text="•"
+                           FontSize="13"
+                           TextColor="#6B7280"
+                           VerticalOptions="Center"/>
+                    <Label Text="{Binding EstadoPin}"
+                           FontSize="13"
+                           TextColor="#F59E0B"
+                           VerticalOptions="Center"
+                           IsVisible="{Binding IsPinned}"/>
+                </StackLayout>
+
+                <!-- Separador -->
+                <BoxView HeightRequest="1"
+                         BackgroundColor="#A78BFA"
+                         Opacity="0.3"
+                         Margin="0,0,0,16"/>
+
+                <!-- Contenido -->
+                <Editor Placeholder="Empieza a escribir..."
+                        Text="{Binding Contenido}"
+                        FontSize="17"
+                        TextColor="#C4B5FD"
+                        PlaceholderColor="#6B7280"
+                        BackgroundColor="Transparent"
+                        AutoSize="TextChanges"
+                        MinimumHeightRequest="300"/>
+
+            </StackLayout>
+        </ScrollView>
+
+        <!-- Toolbar inferior -->
+        <Grid Grid.Row="2"
+              ColumnDefinitions="Auto, *, Auto"
+              BackgroundColor="#16213E"
+              Padding="16,12">
+
+            <BoxView Grid.ColumnSpan="3"
+                     HeightRequest="1"
+                     BackgroundColor="#A78BFA"
+                     Opacity="0.4"
+                     VerticalOptions="Start"/>
+
+            <!-- Contador -->
+            <Label Grid.Column="0"
+                   Text="{Binding Contenido.Length, StringFormat='{0} caracteres'}"
+                   FontSize="13"
+                   TextColor="#6B7280"
+                   VerticalOptions="Center"/>
+
+            <!-- Botón Guardar con degradado -->
+            <Button Grid.Column="2"
+                    Text="  Guardar  "
+                    TextColor="White"
+                    FontAttributes="Bold"
+                    FontSize="16"
+                    CornerRadius="12"
+                    HeightRequest="44"
+                    Padding="20,0"
+                    Command="{Binding GuardarCommand}">
+                <Button.Background>
+                    <LinearGradientBrush StartPoint="0,0" EndPoint="1,1">
+                        <GradientStop Color="#7C3AED" Offset="0.0"/>
+                        <GradientStop Color="#EC4899" Offset="1.0"/>
+                    </LinearGradientBrush>
+                </Button.Background>
+                <Button.Shadow>
+                    <Shadow Brush="#7C3AED"
+                            Offset="0,3"
+                            Radius="10"
+                            Opacity="0.4"/>
+                </Button.Shadow>
+            </Button>
+
+        </Grid>
+    </Grid>
+</ContentPage>
