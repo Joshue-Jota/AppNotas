@@ -32,6 +32,11 @@ namespace Notas.Database
         {
             return database.DeleteAsync(nota);
         }
+
+        public Task<int> UpdateNotaAsync(Nota nota)
+        {
+            return database.UpdateAsync(nota);
+        }
     }
 }
 

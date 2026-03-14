@@ -13,6 +13,9 @@ namespace Notas.ViewModels
     public class NotasViewModel
     {
         public ObservableCollection<Nota> ListaNotas { get; set; }
+        public Nota NotaSeleccionada { get; set; }
+        public ICommand EliminarCommand { get; }
+        public ICommand ActualizarCommand { get; }
 
         public string Titulo { get; set; }
         public string Contenido { get; set; }
@@ -27,7 +30,8 @@ namespace Notas.ViewModels
             ListaNotas = new ObservableCollection<Nota>();
 
             GuardarCommand = new Command(async () => await GuardarNota());
-
+            EliminarCommand = new Command<Nota>(async (nota) => await EliminarNota(nota));
+            ActualizarCommand = new Command(async () => await ActualizarNota());
             CargarNotas();
         }
 
@@ -52,6 +56,25 @@ namespace Notas.ViewModels
 
             Titulo = "";
             Contenido = "";
+        }
+        async Task EliminarNota(Nota nota)
+        {
+            await database.DeleteNotaAsync(nota);
+            ListaNotas.Remove(nota);
+        }
+        async Task ActualizarNota()
+        {
+            if (NotaSeleccionada != null)
+            {
+                NotaSeleccionada.Titulo = Titulo;
+                NotaSeleccionada.Contenido = Contenido;
+
+                await database.UpdateNotaAsync(NotaSeleccionada);
+
+                Titulo = "";
+                Contenido = "";
+                NotaSeleccionada = null;
+            }
         }
     }
 }
